@@ -1,0 +1,6 @@
+@Yam.AuthService_HostAddress = http://localhost:5261
+
+GET {{Yam.AuthService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

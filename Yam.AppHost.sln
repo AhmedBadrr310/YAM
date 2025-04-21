@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35521.163 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yam.AppHost", "Yam.AppHost\Yam.AppHost.csproj", "{AB8C7636-1560-43E9-A538-92D7748B5315}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yam.AuthService", "Yam.AuthService\Yam.AuthService.csproj", "{4212695C-8BDC-40ED-83E3-7B29A2ED8F9E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yam.NotificationService", "Yam.NotificationService\Yam.NotificationService.csproj", "{4B856ABB-87CF-457A-9375-8D3A8A7A6393}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yam.Core", "Yam.Core\Yam.Core.csproj", "{02071FD3-92EC-48B9-88A1-0F302CE60FE8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AB8C7636-1560-43E9-A538-92D7748B5315}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB8C7636-1560-43E9-A538-92D7748B5315}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB8C7636-1560-43E9-A538-92D7748B5315}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB8C7636-1560-43E9-A538-92D7748B5315}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4212695C-8BDC-40ED-83E3-7B29A2ED8F9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4212695C-8BDC-40ED-83E3-7B29A2ED8F9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4212695C-8BDC-40ED-83E3-7B29A2ED8F9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4212695C-8BDC-40ED-83E3-7B29A2ED8F9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B856ABB-87CF-457A-9375-8D3A8A7A6393}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B856ABB-87CF-457A-9375-8D3A8A7A6393}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B856ABB-87CF-457A-9375-8D3A8A7A6393}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B856ABB-87CF-457A-9375-8D3A8A7A6393}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02071FD3-92EC-48B9-88A1-0F302CE60FE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02071FD3-92EC-48B9-88A1-0F302CE60FE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02071FD3-92EC-48B9-88A1-0F302CE60FE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02071FD3-92EC-48B9-88A1-0F302CE60FE8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

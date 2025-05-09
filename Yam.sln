@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35521.163 d17.12
+VisualStudioVersion = 17.12.35521.163
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yam.AppHost", "Yam.AppHost\Yam.AppHost.csproj", "{AB8C7636-1560-43E9-A538-92D7748B5315}"
 EndProject
@@ -10,6 +10,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yam.NotificationService", "Yam.NotificationService\Yam.NotificationService.csproj", "{4B856ABB-87CF-457A-9375-8D3A8A7A6393}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yam.Core", "Yam.Core\Yam.Core.csproj", "{02071FD3-92EC-48B9-88A1-0F302CE60FE8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yam.NotificationService.Core", "Yam.NotificationService.Core\Yam.NotificationService.Core.csproj", "{797D066F-34A9-4153-93E8-710ED33704BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yam.AuthService.Core", "Yam.AuthService.Core\Yam.AuthService.Core.csproj", "{2F022B03-A778-4EAA-83BB-7A4C70F98156}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,14 @@ Global
 		{02071FD3-92EC-48B9-88A1-0F302CE60FE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02071FD3-92EC-48B9-88A1-0F302CE60FE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{02071FD3-92EC-48B9-88A1-0F302CE60FE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{797D066F-34A9-4153-93E8-710ED33704BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{797D066F-34A9-4153-93E8-710ED33704BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{797D066F-34A9-4153-93E8-710ED33704BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{797D066F-34A9-4153-93E8-710ED33704BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F022B03-A778-4EAA-83BB-7A4C70F98156}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F022B03-A778-4EAA-83BB-7A4C70F98156}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F022B03-A778-4EAA-83BB-7A4C70F98156}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F022B03-A778-4EAA-83BB-7A4C70F98156}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

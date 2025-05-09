@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Yam.Core.Entities
+namespace Yam.Core.neo4j.Entities
 {
     public class Role
     {

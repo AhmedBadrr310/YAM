@@ -16,6 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CommunityService\CommunityService.csproj" />
+    <ProjectReference Include="..\PostService\PostService.csproj" />
     <ProjectReference Include="..\Yam.AuthService\Yam.AuthService.csproj" />
     <ProjectReference Include="..\Yam.NotificationService\Yam.NotificationService.csproj" />
   </ItemGroup>

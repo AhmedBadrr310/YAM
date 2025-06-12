@@ -18,7 +18,6 @@ namespace Yam.AuthService.Controllers
     {
         private readonly IAuthService _service = service;
         private readonly IMapper _mapper = mapper;
-        private readonly UserManager<ApplicationUser> _userManager = userManager;
 
         [HttpPost("register")]
         public async Task<ActionResult<ApiResponse>> Register([FromBody]RegisterDto mdl)
@@ -97,6 +96,12 @@ namespace Yam.AuthService.Controllers
 
             var result = await _service.ChangePasswordAsync(userId, mdl.Password);
             return StatusCode(result.Code, result);
+        }
+
+        [HttpGet]
+        public IEnumerable<string> Get()
+        {
+            return new string[] { "value1", "value2" };
         }
 
     }

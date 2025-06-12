@@ -11,6 +11,7 @@ namespace Yam.AuthService.Core.Dtos
     public class RegisterDto
     {
         [Required(ErrorMessage = "Username is required")]
+        [RegularExpression(@"\w{3,50}")]
         public string Username { get; set; } = null!;
         
         [Required(ErrorMessage = "Display name is required")]

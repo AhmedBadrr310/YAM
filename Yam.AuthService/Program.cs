@@ -1,19 +1,16 @@
-using Yam.Core.sql.Entities;
-using Yam.Core.sql;
-using Microsoft.Extensions.Configuration;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Yam.AuthService.Helper;
 using Microsoft.AspNetCore.Identity;
-using Yam.AuthService.Core.Interfaces;
-using Yam.AuthService.Services;
-using StackExchange.Redis;
-using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Neo4jClient;
+using StackExchange.Redis;
+using System.Text;
+using Yam.AuthService.Core.Interfaces;
+using Yam.AuthService.Helper;
+using Yam.AuthService.Services;
+using Yam.Core.sql;
+using Yam.Core.sql.Entities;
 using Yam.NotificationService.Configurations;
-using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -92,7 +89,6 @@ if (app.Environment.IsDevelopment())
         await _roleManager.CreateAsync(role);
 }
 
-app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors(builder =>
 {

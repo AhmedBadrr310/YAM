@@ -9,7 +9,7 @@ namespace Yam.Core.neo4j.Entities
 {
     public class User
     {
-        public string SqlId { get; set; } = null!;
+        public string UserId { get; set; } = null!;
 
         public string? Username { get; set; }
 

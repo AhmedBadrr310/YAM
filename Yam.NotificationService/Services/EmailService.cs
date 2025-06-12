@@ -17,13 +17,13 @@ namespace Yam.NotificationService.Services
                 #region SendingTheMail
                 var smtpClient = new SmtpClient("smtp.gmail.com", 587)
                 {
-                    Credentials = new NetworkCredential("medo.pss201115@gmail.com", "pclm ocve tybo xtzm"),
+                    Credentials = new NetworkCredential("yam.socialplatform@gmail.com", "xpjd zaiy vakp nutn"),
                     EnableSsl = true // This ensures a secure connection
                 };
 
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress("medo.pss201115@gmail.com"),
+                    From = new MailAddress("yam.socialplatform@gmail.com"),
                     Subject = "Email Verification",
                     Body = $"Your verification code is {verificationCode}.",
                     IsBodyHtml = true

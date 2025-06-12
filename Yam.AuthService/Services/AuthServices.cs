@@ -1,23 +1,19 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Neo4jClient;
+using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Yam.AuthService.Core.Dtos;
 using Yam.AuthService.Core.Interfaces;
-using Yam.AuthService.Helper;
 using Yam.AuthService.Responses;
-using Yam.Core.sql.Entities;
-using System.Security.Cryptography;
-using Yam.Core.sql.Migrations;
 using Yam.Core.sql;
-using Microsoft.EntityFrameworkCore;
-using StackExchange.Redis;
-using Yam.Core.Redis;
-using System.Text.Json;
-using Neo4jClient;
-using System.Net.Http.Headers;
+using Yam.Core.sql.Entities;
+using Yam.Core.neo4j.Entities;
 
 namespace Yam.AuthService.Services
 {
@@ -64,9 +60,18 @@ namespace Yam.AuthService.Services
 
         public async Task<ApiResponse> LoginAsync(LoginDto dto, string password)
         {
-            var matchedUser = await _dbContext.Users.FirstOrDefaultAsync(u => u.NormalizedEmail == dto.EmailOrUser.ToUpper() || u.NormalizedUserName == dto.EmailOrUser.ToUpper());
-
-            if (matchedUser == null || !await _userManager.CheckPasswordAsync(matchedUser, password))
+            var isEmail = dto.EmailOrUser.Contains("@");
+            ApplicationUser? matchedUser;
+            if (isEmail)
+            {
+                matchedUser = await _userManager.FindByEmailAsync(dto.EmailOrUser);
+                
+            }
+            else
+            {
+                matchedUser = await _userManager.FindByNameAsync(dto.EmailOrUser);
+            }
+            if (matchedUser is null || !await _userManager.CheckPasswordAsync(matchedUser, password))
             {
                 return new ApiResponse
                 {
@@ -148,8 +153,6 @@ namespace Yam.AuthService.Services
                 };
             }
 
-            // 6. Add user to role (consider adding this to initial user creation if possible)
-            await _userManager.AddToRoleAsync(user, "User");
 
             // 7. Generate token concurrently with role assignment if possible
             var tokenTask = GenerateToken(user);
@@ -158,11 +161,11 @@ namespace Yam.AuthService.Services
             double expirationMinutes = double.Parse(config["jwt:durationInMinutes"]!);
 
             _graph.Cypher.Create("(u:User $param)")
-                .WithParam("param", new
+                .WithParam("param", new User()
                 {
-                    userId = user.Id,
-                    email = user.Email,
-                    username = user.UserName
+                    UserId = user.Id,
+                    Username = user.UserName,
+                    Email = user.Email
                 })
                 .ExecuteWithoutResultsAsync();
 
@@ -222,7 +225,7 @@ namespace Yam.AuthService.Services
                 );
 
                 // Basic GET request
-                client.PostAsync($"https://localhost:7176/api/Mail/send-verification-mail?verificationCode={verificationCode}",content);
+                client.PostAsync($"http://yam-notification.runasp.net/api/Mail/send-verification-mail?verificationCode={verificationCode}",content);
                 
                 // If you need to parse JSON
                 // Use System.Text.Json or Newtonsoft.Json to deserialize

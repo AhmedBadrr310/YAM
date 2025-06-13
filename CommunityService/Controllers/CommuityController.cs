@@ -1,4 +1,5 @@
-﻿using CommunityService.Core.Interfaces;
+﻿using AutoMapper;
+using CommunityService.Core.Interfaces;
 using CommunityService.Dtos;
 using CommunityService.Respones;
 using Microsoft.AspNetCore.Authorization;
@@ -17,7 +18,7 @@ namespace CommunityService.Controllers
 
         [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpPost("create")]
-        public async Task<ActionResult<ApiResponse>> CreateCommunity([FromBody] CommunityDtoToGet mdl)
+        public async Task<ActionResult<ApiResponse>> CreateCommunity([FromForm] CommunityDtoToGet mdl)
         {
             try
             {
@@ -30,21 +31,20 @@ namespace CommunityService.Controllers
                 {
                     CommunityId = Guid.NewGuid().ToString(), // Generate a new unique GUID
                     Name = mdl.Name,
-                    Banner = mdl.Banner,
                     Description = mdl.Description,
                     IsDeleted = false,
-                    IsPublic = mdl.IsPublic,
+                    IsPublic = false,
                     CreatorId = userId,
                     Members = mdl.Members
                 };
-                var result = await _service.CreateCommunityAsync(community);
+                var result = await _service.CreateCommunityAsync(community, mdl.Banner);
                 
                 
                 return Ok(new ApiResponse { Code = 200, Message = "success", Data = result });
             }
             catch (Exception e)
             {
-                return StatusCode(500, new ApiResponse { Code = 500, Message = e.Message, Data = null });
+                return StatusCode(400, new ApiResponse { Code = 400, Message = e.Message, Data = null });
             }
         }
 
@@ -98,8 +98,8 @@ namespace CommunityService.Controllers
         {
             try
             {
-                var roles = GetUserRoles();
-                var code = await _service.GenerateInviteCodeAsync(CommunityId, roles);
+                var userId = GetUserId();
+                var code = await _service.GenerateInviteCodeAsync(CommunityId, userId);
 
                 if (code == null)
                 {
@@ -164,24 +164,23 @@ namespace CommunityService.Controllers
 
         [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpPut]
-        public async Task<ActionResult<ApiResponse>> ModifyCommunity([FromQuery]string communityId, [FromBody]CommunityDtoToGet community)
+        public async Task<ActionResult<ApiResponse>> ModifyCommunity([FromQuery]string communityId, [FromForm]CommunityDtoToGet community)
         {
             try
             {
-                
+
                 var newCommunity = new Community
                 {
                     CommunityId = communityId,
                     Name = community.Name,
-                    Banner = community.Banner,
                     Description = community.Description,
                     IsDeleted = false,
-                    IsPublic = community.IsPublic,
+                    IsPublic = false,
                     CreatorId = GetUserId(),
                     Members = community.Members
                 };
 
-                var result = await _service.ModifyCommunity(GetUserId(), communityId, newCommunity);
+                var result = await _service.ModifyCommunity(GetUserId(), communityId, newCommunity, community.Banner);
                 if (result == null)
                 {
                     return BadRequest(new ApiResponse

@@ -13,7 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PostService.Core\PostService.Core.csproj" />
     <ProjectReference Include="..\PostService.Infrastructure\PostService.Infrastructure.csproj" />
   </ItemGroup>
 

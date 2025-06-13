@@ -7,11 +7,9 @@ namespace CommunityService.Dtos
     {
         public string Name { get; set; } = null!;
 
-        public List<byte> Banner { get; set; } = new List<byte>();
+        public IFormFile? Banner { get; set; }
 
         public string? Description { get; set; }
-
-        public bool IsPublic { get; set; }
 
         [JsonIgnore]
         [BindNever]

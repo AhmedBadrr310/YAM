@@ -8,6 +8,9 @@ using Yam.Core.sql;
 using StackExchange.Redis;
 using PostService.Core.Interfaces;
 using PostService.Infrastructure;
+using PostService.Serivces;
+using Azure.Storage.Blobs;
+using Yam.Core.SharedServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +18,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddScoped(typeof(IPostRepository), typeof(PostRepository));
+builder.Services.AddScoped(typeof(IFileService), typeof(FileService));
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+// 1. Add IHttpClientFactory to the service collection.
+builder.Services.AddHttpClient();
+
+// 2. Register your typed client (DataService).
+builder.Services.AddHttpClient<IPostService, PostServices>(client =>
+{
+    // Configure the HttpClient instance for this specific service
+    client.BaseAddress = new Uri("http://20.215.192.90:5000/");
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+    // You can add other default headers here, like User-Agent, etc.
+});
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -35,6 +51,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddSingleton(x => new BlobServiceClient(
+    builder.Configuration.GetConnectionString("azureFileStore")));
 
 builder.Services.AddSingleton<IGraphClient>(provider =>
 {

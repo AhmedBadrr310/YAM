@@ -15,42 +15,57 @@ namespace PostService.Infrastructure
 
         public async  Task<Comment>? CreateCommentAsync(Comment comment, string postId, string userId)
         {
-            var result = await _graph.Cypher
-                 .Match("(p:Post)", "(u:User)")
-                 .Where("p.PostId = $postId")
-                 .WithParam("postId", postId)
-                 .AndWhere("u.UserId = $userId")
-                 .WithParam("userId", userId)
-                 .Create("(c:Comment $commentParams)")
-                 .WithParam("commentParams", comment)
-                 .Create("(c)-[:COMMENT_ON]->(p)")
-                 .Create("(c)-[:COMMENTED_BY]->(u)")
-                 .Return(p => p.As<Comment>())
-                 .ResultsAsync;
-            return result.FirstOrDefault();
+            try
+            {
+                var result = await _graph.Cypher
+                         .Match("(p:Post)", "(u:User)")
+                         .Where("p.PostId = $postId")
+                         .WithParam("postId", postId)
+                         .AndWhere("u.UserId = $userId")
+                         .WithParam("userId", userId)
+                         .Create("(c:Comment $commentParams)")
+                         .WithParam("commentParams", comment)
+                         .Create("(c)-[:COMMENT_ON]->(p)")
+                         .Create("(c)-[:COMMENTED_BY]->(u)")
+                         .Return(p => p.As<Comment>())
+                         .ResultsAsync;
+                return result.FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
 
         }
 
         public async Task<Post>? CreatePostAsync(Post post, string communityId, string userId)
         {
-            var result = await _graph.Cypher
-              .Create("(p:Post $post)")
-              .WithParam("post", post)
-              .With("p")
-              .Match("(c:Community {CommunityId: $communityId})")
-              .WithParam("communityId", communityId)
-              .Create("(p)-[:BELONGS_TO]->(c)")
-              .With("p")
-              .Match("(u:User {UserId: $userId})")
-              .WithParam("userId", userId)
-              .Create("(p)-[:CREATED_BY]->(u)")
-              .Return(p => p.As<Post>())
-              .ResultsAsync;
 
-            if (result == null || !result.Any())
-                return null;
+            try
+            {
+                var result = await _graph.Cypher
+                      .Create("(p:Post $post)")
+                      .WithParam("post", post)
+                      .With("p")
+                      .Match("(c:Community {CommunityId: $communityId})")
+                      .WithParam("communityId", communityId)
+                      .Create("(p)-[:BELONGS_TO]->(c)")
+                      .With("p")
+                      .Match("(u:User {UserId: $userId})")
+                      .WithParam("userId", userId)
+                      .Create("(p)-[:CREATED_BY]->(u)")
+                      .Return(p => p.As<Post>())
+                      .ResultsAsync;
 
-            return result.FirstOrDefault();
+                if (result == null || !result.Any())
+                    return null;
+
+                return result.FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<bool> DeletePostAsync(string postId)
@@ -67,22 +82,28 @@ namespace PostService.Infrastructure
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
-                return false;
+                throw new Exception(ex.Message);
             }
         }
 
         public async Task<List<Post>>? GetAllPostsAsync(string communityId)
         {
-            var results = await _graph.Cypher
-                .Match("(p:Post)")
-                .Where("p.CommunityId = $communityId")
-                .WithParam("communityId", communityId)
-                .Return(p => p.As<Post>())
-                .ResultsAsync;
-            if (results is null || !results.Any())
-                return null;
-            return results.ToList();
+            try
+            {
+                var results = await _graph.Cypher
+                        .Match("(p:Post)")
+                        .Where("p.CommunityId = $communityId")
+                        .WithParam("communityId", communityId)
+                        .Return(p => p.As<Post>())
+                        .ResultsAsync;
+                if (results is null || !results.Any())
+                    return null;
+                return results.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
 
@@ -94,34 +115,41 @@ namespace PostService.Infrastructure
 
         public async Task<List<Post>>? GetPostsByUserIdAsync(string userId)
         {
-            var results = await _graph.Cypher
-                .Match("(u:User {UserId: $userId})-[:CREATED_BY]->(p:Post)")
-                .WithParam("userId", userId)
-                .Return(p => p.As<Post>())
-                .ResultsAsync;
-            if (results is null || !results.Any())
-                return null;
-            return results.ToList();
+            try
+            {
+                var results = await _graph.Cypher
+                        .Match("(u:User {UserId: $userId})-[:CREATED_BY]->(p:Post)")
+                        .WithParam("userId", userId)
+                        .Return(p => p.As<Post>())
+                        .ResultsAsync;
+                if (results is null || !results.Any())
+                    return null;
+                return results.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
 
         //under construction
-        public async Task<bool> UpdatePostAsync(string postId, Post newPost)
+        public async Task<Post> UpdatePostAsync(string postId, Post newPost)
         {
             try
             {
-                await _graph.Cypher
+                var result = await _graph.Cypher
                     .Match("(p:Post {PostId: $postId})")
                     .WithParam("postId", postId)
                     .Set("p = $newPost")
                     .WithParam("newPost", newPost)
-                    .ExecuteWithoutResultsAsync();
-                return true;
+                    .Return(p => p.As<Post>())
+                    .ResultsAsync;
+                return result.FirstOrDefault();
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
-                return false;
+                throw new Exception(ex.Message);
             }
         }
     }

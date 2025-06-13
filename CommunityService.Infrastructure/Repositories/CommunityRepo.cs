@@ -224,9 +224,9 @@ namespace CommunityService.Infrastructure.Repositories
            var result = await _graphClient.Cypher
                 .Match("(c:Community)")
                 .Where((Community c) => c.CommunityId == community.CommunityId)
-                .Set("c.Name = $name, c.Banner = $banner, c.Description = $description")
+                .Set("c.Name = $name, c.BannerUrl = $banner, c.Description = $description")
                 .WithParam("name", community.Name)
-                .WithParam("banner", community.Banner)
+                .WithParam("banner", community.BannerUrl)
                 .WithParam("description", community.Description)
                 .Return(c => c.As<Community>())
                 .ResultsAsync;

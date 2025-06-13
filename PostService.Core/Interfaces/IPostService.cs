@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Yam.AuthService.Responses;
+﻿using Microsoft.AspNetCore.Http;
+using System.Net.Http.Headers;
 using Yam.Core.neo4j.Entities;
 
 namespace PostService.Core.Interfaces
 {
-    public interface IPostRepository
+    public interface IPostService
     {
-        Task<Post>? CreatePostAsync(Post post, string communityId, string userId);
+        Task<Post>? CreatePostAsync(Post post, string communityId, string userId, AuthenticationHeaderValue token, IFormFile image);
         Task<Post> UpdatePostAsync(string postId, Post newPost);
         Task<bool> DeletePostAsync(string postId);
         Task<List<Post>>? GetPostsByUserIdAsync(string userId);

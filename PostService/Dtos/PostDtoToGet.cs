@@ -4,6 +4,6 @@
     {
         public string Content { get; set; } = null!;
 
-        public List<byte>? Image { get; set; }
+        public IFormFile Image { get; set; } = null!;
     }
 }

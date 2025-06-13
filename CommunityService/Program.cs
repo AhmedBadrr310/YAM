@@ -11,6 +11,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
+using Yam.Core.SharedServices;
+using Azure.Storage.Blobs;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,9 +22,28 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddScoped(typeof(ICommunityRepo), typeof(CommunityRepo));
 builder.Services.AddScoped(typeof(ICommunityService), typeof(CommunityServices));
+builder.Services.AddScoped(typeof(IFileService), typeof(FileService));
+
 //builder.Services.AddDbContext<CommunityDbContext>(options =>
 //    options.UseSqlServer(
 //        builder.Configuration.GetConnectionString("sqlConnection")), ServiceLifetime.Transient);
+
+
+builder.Services.AddSingleton(x => new BlobServiceClient(
+    builder.Configuration.GetConnectionString("azureFileStore")));
+
+
+builder.Services.AddHttpClient("TextValidationService", client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5000/");
+});
+
+builder.Services.AddHttpClient("ImageValidationService", client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5000/");
+});
+
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

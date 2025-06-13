@@ -14,7 +14,7 @@ namespace Yam.Core.neo4j.Entities
 
         public string CeatorId { get; set; } = null!;
 
-        public List<byte>? Image { get; set; }
+        public string ImageUrl { get; set; } = null!;
 
         public string Content { get; set; } = null!;
 

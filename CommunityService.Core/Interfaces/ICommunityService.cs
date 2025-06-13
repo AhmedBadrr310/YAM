@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ namespace CommunityService.Core.Interfaces
 {
     public interface ICommunityService
     {
-        Task<Community> CreateCommunityAsync(Community community);
+        Task<Community> CreateCommunityAsync(Community community, IFormFile banner);
 
         Task<bool> DeleteCommunityAsync(string communityId, string userId);
 
@@ -24,9 +25,9 @@ namespace CommunityService.Core.Interfaces
 
         Task<List<Community>> GetPublicCommunitiesAsync(int pageIndex, int pageSize, string? name);
 
-        Task<Community> ModifyCommunity(string userId, string communityId, Community community);
+        Task<Community> ModifyCommunity(string userId, string communityId, Community community, IFormFile banner);
 
-        Task<string>? GenerateInviteCodeAsync(string communityId, List<string> roles);
+        Task<string>? GenerateInviteCodeAsync(string communityId, string userId);
 
         Task<Community> LeaveCommunityAsync(string communityId, string userId);
     }

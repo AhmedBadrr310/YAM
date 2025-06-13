@@ -11,8 +11,8 @@ namespace Yam.Core.neo4j.Entities
         public string CommunityId { get; set; } = null!;
 
         public string Name { get; set; } = null!;
-        
-        public List<byte> Banner { get; set; } = new List<byte>();
+
+        public string BannerUrl { get; set; } = null!;
         
         public string? Description { get; set; }
 

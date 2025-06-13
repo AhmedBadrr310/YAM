@@ -44,7 +44,14 @@ namespace CommunityService.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(400, new ApiResponse { Code = 400, Message = e.Message, Data = null });
+                // Return a simple object with just the error message string.
+                var errorResponse = new ApiResponse
+                {
+                    Code = 400,
+                    Message = e.Message,
+                    Data = null // Set Data to null or an empty object
+                };
+                return StatusCode(400, errorResponse);
             }
         }
 

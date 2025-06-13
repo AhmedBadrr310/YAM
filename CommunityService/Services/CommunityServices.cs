@@ -35,51 +35,62 @@ namespace CommunityService.Services
 
         public async Task<Community> CreateCommunityAsync(Community community, IFormFile banner)
         {
-            var resultAsync = _repo.GetCommunityByName(community.Name);
-            var tasksToRun = new List<Task<HttpResponseMessage>>(); // Explicitly specify the type of tasks in the list.  
-            bool validatingImage = false;
-            if (banner is not null)
-            {
-                using var multipartContent = new MultipartFormDataContent();
-                await using var fileStream = banner.OpenReadStream();
-                var streamContent = new StreamContent(fileStream);
-                multipartContent.Add(streamContent, "image", banner.FileName);
-                streamContent.Headers.ContentType = new MediaTypeHeaderValue(banner.ContentType);
-
-                tasksToRun.Add(_imageClient.PostAsync("checkimage", multipartContent));
-                validatingImage = true;
-            }
-            if (!string.IsNullOrEmpty(community.Name))
-            {
-                tasksToRun.Add(_textClient.PostAsJsonAsync("checktext", new { text = community.Name }));
-            }
-
-
-            var result = await resultAsync;
-            if(result is not null)
+            // 1. Check for existing community name first and fail fast.
+            var existingCommunity = await _repo.GetCommunityByName(community.Name);
+            if (existingCommunity is not null)
             {
                 throw new Exception("Community with this name already exists");
             }
 
+            // 2. Prepare validation tasks without starting them.
+            Task<HttpResponseMessage> imageValidationTask = null;
+            Task<HttpResponseMessage> textValidationTask = null;
 
-            Task<string> urlTask = null;
-            if (tasksToRun.Any())
+            if (banner is not null)
             {
-                var responses = await Task.WhenAll(tasksToRun); // Ensure the type matches the expected return type of Task.WhenAll.  
-                if (validatingImage)
-                {
-                    urlTask = _fileService.UploadAsync(banner);
-                    await ValidateResponseAsync<CheckImageResponseDto>(responses[0], dto => dto.Prediction.IsHarmful, "failed to check the image", "the image has sensitive content");
-
-                }
-                #region ImageValidation  
-                #endregion
-
-                #region TextValidation  
-                await ValidateResponseAsync<CheckTextResponseDto>(responses[validatingImage?1:0], dto => dto.IsToxic, "failed to check the name", "the text has sensitive content");
-                #endregion
+                // Use a helper method to create the content to avoid duplicating code
+                var imageContent = CreateImageContent(banner);
+                imageValidationTask = _imageClient.PostAsync("checkimage", imageContent);
+            }
+            if (!string.IsNullOrEmpty(community.Name))
+            {
+                textValidationTask = _textClient.PostAsJsonAsync("checktext", new { text = community.Name });
             }
 
+            // 3. Collect only the tasks that were actually started.
+            var validationTasks = new List<Task>();
+            if (imageValidationTask != null) validationTasks.Add(imageValidationTask);
+            if (textValidationTask != null) validationTasks.Add(textValidationTask);
+
+            // 4. Run all validation tasks in parallel.
+            if (validationTasks.Any())
+            {
+                await Task.WhenAll(validationTasks);
+            }
+
+            // 5. Check results individually, only if the task was run.
+            Task<string> uploadUrlTask = null;
+            if (imageValidationTask != null)
+            {
+                await ValidateResponseAsync<CheckImageResponseDto>(
+                    await imageValidationTask,
+                    dto => dto?.Prediction?.IsHarmful == true,
+                    "Image validation service failed.",
+                    "The image contains sensitive content.");
+
+                // If image validation passes, start the upload task.
+                uploadUrlTask = _fileService.UploadAsync(banner);
+            }
+            if (textValidationTask != null)
+            {
+                await ValidateResponseAsync<CheckTextResponseDto>(
+                    await textValidationTask,
+                    dto => dto?.IsToxic == true,
+                    "Text validation service failed.",
+                    "The community name contains sensitive content.");
+            }
+
+            // --- The rest of your logic ---
 
             var role = new ApplicationRole()
             {
@@ -87,23 +98,33 @@ namespace CommunityService.Services
                 Name = community.CommunityId
             };
             await _roleManager.CreateAsync(role);
-            var userTask = _userManager.FindByIdAsync(community.CreatorId);
 
+            var user = await _userManager.FindByIdAsync(community.CreatorId);
+            await _userManager.AddToRoleAsync(user, community.CommunityId);
 
+            // This is a database operation, no need to run it in parallel with the upload.
+            await _repo.AddUserToCommunityAsync(community.CommunityId, community.CreatorId);
 
-            var addRoleTask = _repo.AddUserToCommunityAsync(community.CommunityId, community.CreatorId);
-            if (urlTask is not null)
-                await Task.WhenAll(urlTask, addRoleTask, userTask);
-            else
-                await Task.WhenAll( addRoleTask, userTask);
-            await _userManager.AddToRoleAsync(await userTask, community.CommunityId);
-            if (urlTask is not null)
+            // Get the banner URL if the upload task was started
+            if (uploadUrlTask != null)
             {
-                community.BannerUrl = await urlTask;  
+                community.BannerUrl = await uploadUrlTask;
             }
-            return await _repo.CreateCommunityAsync(community);
 
+            return await _repo.CreateCommunityAsync(community);
         }
+
+        // Helper method to avoid code duplication
+        private MultipartFormDataContent CreateImageContent(IFormFile banner)
+        {
+            var multipartContent = new MultipartFormDataContent();
+            var fileStream = banner.OpenReadStream();
+            var streamContent = new StreamContent(fileStream);
+            streamContent.Headers.ContentType = new MediaTypeHeaderValue(banner.ContentType);
+            multipartContent.Add(streamContent, "image", banner.FileName);
+            return multipartContent;
+        }
+        
 
         public async Task<bool> DeleteCommunityAsync(string communityId, string userId)
         {
@@ -238,56 +259,69 @@ namespace CommunityService.Services
 
         public async Task<Community> ModifyCommunity(string userId, string communityId, Community community, IFormFile banner)
         {
-            
-            var resultAsync = _repo.GetCommunityByName(community.Name);
-            var tasksToRun = new List<Task<HttpResponseMessage>>(); // Explicitly specify the type of tasks in the list.  
-            bool validatingImage = false;
-            if (banner is not null)
-            {
-                using var multipartContent = new MultipartFormDataContent();
-                await using var fileStream = banner.OpenReadStream();
-                var streamContent = new StreamContent(fileStream);
-                multipartContent.Add(streamContent, "image", banner.FileName);
-                streamContent.Headers.ContentType = new MediaTypeHeaderValue(banner.ContentType);
-
-                tasksToRun.Add(_imageClient.PostAsync("checkimage", multipartContent));
-                validatingImage = true;
-            }
-            if (!string.IsNullOrEmpty(community.Name))
-            {
-                tasksToRun.Add(_textClient.PostAsJsonAsync("checktext", new { text = community.Name }));
-            }
-
+            // 1. Authorization: Check if the user is the admin.
             var admin = await _repo.GetAdmin(communityId);
             if (admin is null || admin.UserId != userId)
             {
-                throw new Exception("user is not authorized");
+                throw new Exception("User is not authorized to modify this community.");
             }
 
-            Task<string> urlTask = null;
-            if (tasksToRun.Any())
+            // You should probably also check if the new name is already taken by ANOTHER community.
+            // This logic needs refinement, but for now we focus on the crash.
+
+            // 2. Prepare validation tasks.
+            Task<HttpResponseMessage> imageValidationTask = null;
+            Task<HttpResponseMessage> textValidationTask = null;
+
+            if (banner is not null)
             {
-                var responses = await Task.WhenAll(tasksToRun); // Ensure the type matches the expected return type of Task.WhenAll.  
-                if(validatingImage)
-                {
-                    urlTask = _fileService.UploadAsync(banner);
-                    await ValidateResponseAsync<CheckImageResponseDto>(responses[0], dto => dto.Prediction.IsHarmful, "failed to check the image", "the image has sensitive content");
-
-                }
-                #region ImageValidation  
-                #endregion
-
-                #region TextValidation  
-                await ValidateResponseAsync<CheckTextResponseDto>(responses[validatingImage?1:0], dto => dto.IsToxic, "failed to check the name", "the text has sensitive content");
-                #endregion
+                var imageContent = CreateImageContent(banner); // Using the helper method from before
+                imageValidationTask = _imageClient.PostAsync("checkimage", imageContent);
             }
-
-            if(urlTask is not null)
+            if (!string.IsNullOrEmpty(community.Name))
             {
-                var url = await urlTask;
-                community.BannerUrl = url;
+                textValidationTask = _textClient.PostAsJsonAsync("checktext", new { text = community.Name });
             }
 
+            // 3. Collect and run only the necessary tasks.
+            var validationTasks = new List<Task>();
+            if (imageValidationTask != null) validationTasks.Add(imageValidationTask);
+            if (textValidationTask != null) validationTasks.Add(textValidationTask);
+
+            if (validationTasks.Any())
+            {
+                await Task.WhenAll(validationTasks);
+            }
+
+            // 4. Check results individually and safely.
+            Task<string> uploadUrlTask = null;
+            if (imageValidationTask != null)
+            {
+                await ValidateResponseAsync<CheckImageResponseDto>(
+                    await imageValidationTask,
+                    dto => dto?.Prediction?.IsHarmful == true,
+                    "Image validation service failed.",
+                    "The image contains sensitive content.");
+
+                // Start the upload task only after validation passes.
+                uploadUrlTask = _fileService.UploadAsync(banner);
+            }
+            if (textValidationTask != null)
+            {
+                await ValidateResponseAsync<CheckTextResponseDto>(
+                    await textValidationTask,
+                    dto => dto?.IsToxic == true,
+                    "Text validation service failed.",
+                    "The community name contains sensitive content.");
+            }
+
+            // 5. Get the new banner URL if an image was uploaded.
+            if (uploadUrlTask != null)
+            {
+                community.BannerUrl = await uploadUrlTask;
+            }
+
+            // 6. Save the modified community to the database.
             var result = await _repo.EditCommunity(community);
             return result;
         }

@@ -35,12 +35,12 @@ builder.Services.AddSingleton(x => new BlobServiceClient(
 
 builder.Services.AddHttpClient("TextValidationService", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5000/");
+    client.BaseAddress = new Uri("http://20.215.192.90:5000/");
 });
 
 builder.Services.AddHttpClient("ImageValidationService", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5000/");
+    client.BaseAddress = new Uri("http://20.215.192.90:5000");
 });
 
 

@@ -14,6 +14,10 @@ namespace PostService.Core.Interfaces
         Task<Post> UpdatePostAsync(string postId, Post newPost);
         Task<bool> DeletePostAsync(string postId);
         Task<List<Post>>? GetPostsByUserIdAsync(string userId);
-        Task<List<Post>>? GetAllPostsAsync(string communityId);
+        Task<PaginatedResult<Post>>? GetAllPostsAsync(string communityId, string? searchValue, string? sort, int pageNumber, int pageSize);
+        Task<Post>? GetPostById(string postId);
+        Task LikePostAsync(string postId, string userId);
+        Task UnLikePostAsync(string postId, string userId);
+        Task<User> CheckUserLikeAsync(string postId, string userId);
     }
 }

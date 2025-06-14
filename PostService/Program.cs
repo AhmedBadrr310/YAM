@@ -19,18 +19,37 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddScoped(typeof(IPostRepository), typeof(PostRepository));
 builder.Services.AddScoped(typeof(IFileService), typeof(FileService));
+builder.Services.AddScoped(typeof(IPostService), typeof(PostServices));
+builder.Services.AddScoped(typeof(ICommentService), typeof(CommentService));
+builder.Services.AddScoped(typeof(ICommentRepository), typeof(CommentRepository));
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 
 // 1. Add IHttpClientFactory to the service collection.
-builder.Services.AddHttpClient();
 
 // 2. Register your typed client (DataService).
-builder.Services.AddHttpClient<IPostService, PostServices>(client =>
+builder.Services.AddHttpClient("TextValidationService", client =>
 {
-    // Configure the HttpClient instance for this specific service
     client.BaseAddress = new Uri("http://20.215.192.90:5000/");
-    client.DefaultRequestHeaders.Add("Accept", "application/json");
-    // You can add other default headers here, like User-Agent, etc.
+});
+
+builder.Services.AddHttpClient("ImageValidationService", client =>
+{
+    client.BaseAddress = new Uri("http://20.215.192.90:5000/");
+});
+
+builder.Services.AddHttpClient("CommunityValidationService", client =>
+{
+    client.BaseAddress = new Uri("https://20.215.192.90:5002/api/Commuity/");
+})
+.ConfigurePrimaryHttpMessageHandler(() =>
+{
+    // DANGER: This handler bypasses SSL certificate validation.
+    // ONLY use this for local development and testing.
+    return new HttpClientHandler
+    {
+        ServerCertificateCustomValidationCallback =
+            (message, cert, chain, errors) => true
+    };
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

@@ -154,12 +154,21 @@ namespace CommunityService.Controllers
 
         [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpGet]
-        public async Task<ActionResult<ApiResponse>> GetAllCommunities()
+        public async Task<ActionResult<ApiResponse>> GetAllCommunities(string? userId)
         {
             try
             {
-                var userId = GetUserId();
-                var communities = await _service.GetAllCommuitiesAsync(userId);
+                string existingUserId;
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    existingUserId = userId;
+                }
+                else
+                {
+                    existingUserId = GetUserId();
+
+                }
+                var communities = await _service.GetAllCommuitiesAsync(existingUserId);
 
                 return Ok(new ApiResponse { Code = 200, Message = "success", Data = communities });
             }
